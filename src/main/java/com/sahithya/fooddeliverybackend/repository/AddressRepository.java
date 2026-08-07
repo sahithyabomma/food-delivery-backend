@@ -1,0 +1,9 @@
+package com.sahithya.fooddeliverybackend.repository;
+
+import com.sahithya.fooddeliverybackend.entity.Address;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface AddressRepository extends JpaRepository<Address, UUID> {
+}
