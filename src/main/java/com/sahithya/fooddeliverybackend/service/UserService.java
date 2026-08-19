@@ -5,7 +5,9 @@ import com.sahithya.fooddeliverybackend.dto.request.UpdateUserRequest;
 import com.sahithya.fooddeliverybackend.dto.response.RegisterUserResponse;
 import com.sahithya.fooddeliverybackend.dto.response.UserResponse;
 import com.sahithya.fooddeliverybackend.entity.User;
+import com.sahithya.fooddeliverybackend.entity.UserRole;
 import com.sahithya.fooddeliverybackend.exception.EmailAlreadyExistsException;
+import com.sahithya.fooddeliverybackend.exception.InvalidRegistrationRoleException;
 import com.sahithya.fooddeliverybackend.exception.InvalidUserUpdateException;
 import com.sahithya.fooddeliverybackend.exception.UserNotFoundException;
 import com.sahithya.fooddeliverybackend.mapper.UserMapper;
@@ -39,6 +41,13 @@ public class UserService {
             throw new EmailAlreadyExistsException(normalizedEmail);
         }
 
+        UserRole requestedRole = request.getUserRole();
+
+        if (requestedRole != UserRole.CUSTOMER
+                && requestedRole != UserRole.RESTAURANT_OWNER
+                && requestedRole != UserRole.DELIVERY_PARTNER) {
+            throw new InvalidRegistrationRoleException(requestedRole);
+        }
         String passwordHash = passwordEncoder.encode(request.getPassword());
         Instant now = Instant.now();
         User user = userMapper.toEntity(request, normalizedEmail, passwordHash, now);

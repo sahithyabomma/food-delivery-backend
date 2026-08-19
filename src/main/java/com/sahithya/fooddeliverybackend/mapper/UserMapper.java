@@ -21,7 +21,7 @@ public class UserMapper {
                 request.getName().trim(),
                 normalizedEmail,
                 passwordHash,
-                UserRole.CUSTOMER,
+                request.getUserRole(),
                 now,
                 now
         );

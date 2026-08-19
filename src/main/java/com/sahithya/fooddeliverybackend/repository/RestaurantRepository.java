@@ -12,4 +12,9 @@ public interface RestaurantRepository
     boolean existsByEmail(String email);
 
     Optional<Restaurant> findByEmail(String email);
+
+    Optional<Restaurant> findByIdAndOwnerId(
+            UUID restaurantId,
+            UUID ownerId
+    );
 }

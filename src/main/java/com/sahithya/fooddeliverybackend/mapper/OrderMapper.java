@@ -1,15 +1,7 @@
 package com.sahithya.fooddeliverybackend.mapper;
 
-import com.sahithya.fooddeliverybackend.dto.response.CheckoutResponse;
-import com.sahithya.fooddeliverybackend.dto.response.OrderItemResponse;
-import com.sahithya.fooddeliverybackend.dto.response.OrderRestaurantSummaryResponse;
-import com.sahithya.fooddeliverybackend.entity.CartItem;
-import com.sahithya.fooddeliverybackend.entity.MenuItem;
-import com.sahithya.fooddeliverybackend.entity.Order;
-import com.sahithya.fooddeliverybackend.entity.OrderItem;
-import com.sahithya.fooddeliverybackend.entity.OrderStatus;
-import com.sahithya.fooddeliverybackend.entity.Restaurant;
-import com.sahithya.fooddeliverybackend.entity.User;
+import com.sahithya.fooddeliverybackend.dto.response.*;
+import com.sahithya.fooddeliverybackend.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -98,6 +90,64 @@ public class OrderMapper {
                 orderItem.getPriceAtPurchase(),
                 orderItem.getQuantity(),
                 orderItem.getSubtotal()
+        );
+    }
+
+    public OrderSummaryResponse toOrderSummaryResponse(
+            Order order,
+            OrderPaymentState orderPaymentState,
+            RefundStatus refundStatus
+    ) {
+        return new OrderSummaryResponse(
+                order.getId(),
+                order.getRestaurant().getName(),
+                order.getStatus(),
+                order.getTotalAmount(),
+                order.getCreatedAt(),
+                orderPaymentState,
+                refundStatus
+        );
+    }
+
+    public OrderDetailsResponse toOrderDetailsResponse(
+            Order order,
+            List<OrderItem> orderItems,
+            OrderPaymentState paymentState,
+            RefundSummaryResponse refund
+    ) {
+        OrderRestaurantSummaryResponse restaurantResponse =
+                new OrderRestaurantSummaryResponse(
+                        order.getRestaurant().getId(),
+                        order.getRestaurant().getName()
+                );
+
+        List<OrderItemResponse> itemResponses =
+                orderItems.stream()
+                        .map(this::toOrderItemResponse)
+                        .toList();
+
+        return new OrderDetailsResponse(
+                order.getId(),
+                order.getStatus(),
+                restaurantResponse,
+
+                itemResponses,
+
+                order.getTotalAmount(),
+
+                order.getCreatedAt(),
+                paymentState,
+                refund
+        );
+    }
+
+    public UpdateOrderStatusResponse toUpdateStatusResponse(
+            Order order
+    ) {
+        return new UpdateOrderStatusResponse(
+                order.getId(),
+                order.getStatus(),
+                order.getUpdatedAt()
         );
     }
 }

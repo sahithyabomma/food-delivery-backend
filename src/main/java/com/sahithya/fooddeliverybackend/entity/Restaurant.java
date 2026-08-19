@@ -1,14 +1,6 @@
 package com.sahithya.fooddeliverybackend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.time.LocalTime;
@@ -23,6 +15,10 @@ public class Restaurant {
 
     @Column(nullable = false)
     private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "owner_user_id", nullable = false)
+    private User owner;
 
     @Column(nullable = false)
     private String email;
@@ -66,6 +62,7 @@ public class Restaurant {
             LocalTime openingTime,
             LocalTime closingTime,
             Address address,
+            User owner,
             Instant createdAt,
             Instant updatedAt
     ) {
@@ -77,6 +74,7 @@ public class Restaurant {
         this.openingTime = openingTime;
         this.closingTime = closingTime;
         this.address = address;
+        this.owner = owner;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -119,5 +117,9 @@ public class Restaurant {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public User getOwner() {
+        return owner;
     }
 }

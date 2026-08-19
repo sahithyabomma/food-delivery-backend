@@ -6,11 +6,7 @@ import com.sahithya.fooddeliverybackend.dto.response.MenuCategoryWithItemsRespon
 import com.sahithya.fooddeliverybackend.dto.response.MenuItemSummaryResponse;
 import com.sahithya.fooddeliverybackend.dto.response.RegisterRestaurantResponse;
 import com.sahithya.fooddeliverybackend.dto.response.RestaurantMenuResponse;
-import com.sahithya.fooddeliverybackend.entity.Address;
-import com.sahithya.fooddeliverybackend.entity.MenuCategory;
-import com.sahithya.fooddeliverybackend.entity.MenuItem;
-import com.sahithya.fooddeliverybackend.entity.Restaurant;
-import com.sahithya.fooddeliverybackend.entity.RestaurantStatus;
+import com.sahithya.fooddeliverybackend.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -40,6 +36,7 @@ public class RestaurantMapper {
     public Restaurant toEntity(
             RegisterRestaurantRequest request,
             Address address,
+            User owner,
             String normalizedEmail,
             Instant now
     ) {
@@ -52,6 +49,7 @@ public class RestaurantMapper {
                 request.getOpeningTime(),
                 request.getClosingTime(),
                 address,
+                owner,
                 now,
                 now
         );

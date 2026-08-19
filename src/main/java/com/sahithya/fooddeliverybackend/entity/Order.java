@@ -1,5 +1,7 @@
 package com.sahithya.fooddeliverybackend.entity;
 
+import com.sahithya.fooddeliverybackend.exception.InvalidOrderStatusTransitionException;
+import com.sahithya.fooddeliverybackend.exception.OrderCancellationNotAllowedException;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -104,5 +106,64 @@ public class Order {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void changeStatus(
+            OrderStatus newStatus,
+            Instant now
+    ) {
+        if (!isValidTransition(this.status, newStatus)) {
+            throw new InvalidOrderStatusTransitionException(
+                    this.status,
+                    newStatus
+            );
+        }
+
+        this.status = newStatus;
+        this.updatedAt = now;
+    }
+
+    private boolean isValidTransition(
+            OrderStatus currentStatus,
+            OrderStatus newStatus
+    ) {
+        return switch (currentStatus) {
+
+            case PLACED ->
+                    newStatus == OrderStatus.CONFIRMED
+                            || newStatus == OrderStatus.CANCELLED;
+
+            case CONFIRMED ->
+                    newStatus == OrderStatus.PREPARING
+                            || newStatus == OrderStatus.CANCELLED;
+
+            case PREPARING ->
+                    newStatus == OrderStatus.READY_FOR_PICKUP;
+
+            case READY_FOR_PICKUP ->
+                    newStatus == OrderStatus.OUT_FOR_DELIVERY;
+
+            case OUT_FOR_DELIVERY ->
+                    newStatus == OrderStatus.DELIVERED;
+
+            case DELIVERED, CANCELLED ->
+                    false;
+        };
+    }
+
+    public void cancel(Instant now) {
+
+        boolean cancellable =
+                this.status == OrderStatus.PLACED
+                        || this.status == OrderStatus.CONFIRMED;
+
+        if (!cancellable) {
+            throw new OrderCancellationNotAllowedException(
+                    this.status
+            );
+        }
+
+        this.status = OrderStatus.CANCELLED;
+        this.updatedAt = now;
     }
 }

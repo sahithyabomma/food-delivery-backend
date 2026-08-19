@@ -3,18 +3,13 @@ package com.sahithya.fooddeliverybackend.service;
 import com.sahithya.fooddeliverybackend.dto.request.RegisterRestaurantRequest;
 import com.sahithya.fooddeliverybackend.dto.response.RegisterRestaurantResponse;
 import com.sahithya.fooddeliverybackend.dto.response.RestaurantMenuResponse;
-import com.sahithya.fooddeliverybackend.entity.Address;
-import com.sahithya.fooddeliverybackend.entity.MenuCategory;
-import com.sahithya.fooddeliverybackend.entity.MenuItem;
-import com.sahithya.fooddeliverybackend.entity.Restaurant;
+import com.sahithya.fooddeliverybackend.entity.*;
 import com.sahithya.fooddeliverybackend.exception.InvalidRestaurantHoursException;
 import com.sahithya.fooddeliverybackend.exception.RestaurantEmailAlreadyExistsException;
 import com.sahithya.fooddeliverybackend.exception.RestaurantNotFoundException;
+import com.sahithya.fooddeliverybackend.exception.UserNotFoundException;
 import com.sahithya.fooddeliverybackend.mapper.RestaurantMapper;
-import com.sahithya.fooddeliverybackend.repository.AddressRepository;
-import com.sahithya.fooddeliverybackend.repository.MenuCategoryRepository;
-import com.sahithya.fooddeliverybackend.repository.MenuItemRepository;
-import com.sahithya.fooddeliverybackend.repository.RestaurantRepository;
+import com.sahithya.fooddeliverybackend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,23 +26,26 @@ public class RestaurantService {
     private final RestaurantMapper restaurantMapper;
     private final MenuCategoryRepository menuCategoryRepository;
     private final MenuItemRepository menuItemRepository;
+    private final UserRepository userRepository;
 
     public RestaurantService(
             RestaurantRepository restaurantRepository,
             AddressRepository addressRepository,
             RestaurantMapper restaurantMapper,
             MenuCategoryRepository menuCategoryRepository,
-            MenuItemRepository menuItemRepository
+            MenuItemRepository menuItemRepository, UserRepository userRepository
     ) {
         this.restaurantRepository = restaurantRepository;
         this.addressRepository = addressRepository;
         this.restaurantMapper = restaurantMapper;
         this.menuCategoryRepository = menuCategoryRepository;
         this.menuItemRepository = menuItemRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public RegisterRestaurantResponse register(
+            UUID userId,
             RegisterRestaurantRequest request
     ) {
         String normalizedEmail = request.getEmail()
@@ -62,6 +60,11 @@ public class RestaurantService {
 
         validateOpeningHours(request);
 
+        User owner = userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new UserNotFoundException(userId)
+                );
+
         Address address =
                 restaurantMapper.toAddressEntity(request);
 
@@ -73,6 +76,7 @@ public class RestaurantService {
         Restaurant restaurant = restaurantMapper.toEntity(
                 request,
                 savedAddress,
+                owner,
                 normalizedEmail,
                 now
         );

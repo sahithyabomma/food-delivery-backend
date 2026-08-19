@@ -294,4 +294,197 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(response);
     }
+
+    @ExceptionHandler(InvalidOrderStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOrderStatusTransition(
+            InvalidOrderStatusTransitionException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(OrderStatusPermissionException.class)
+    public ResponseEntity<ErrorResponse> handleOrderStatusPermission(
+            OrderStatusPermissionException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidRegistrationRoleException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRegistrationRole(
+            InvalidRegistrationRoleException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidDeliveryStatusTransitionException.class)
+    public ResponseEntity<ErrorResponse>
+    handleInvalidDeliveryStatusTransition(
+            InvalidDeliveryStatusTransitionException exception
+    ) {
+
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(DeliveryAssignmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse>
+    handleDeliveryAssignmentNotFound(
+            DeliveryAssignmentNotFoundException exception
+    ) {
+
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(DeliveryPartnerNotAuthorizedException.class)
+    public ResponseEntity<ErrorResponse>
+    handleDeliveryPartnerNotAuthorized(
+            DeliveryPartnerNotAuthorizedException exception
+    ) {
+
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(response);
+    }
+
+    @ExceptionHandler(IdempotencyKeyConflictException.class)
+    public ResponseEntity<ErrorResponse> handleIdempotencyKeyConflict(
+            IdempotencyKeyConflictException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(PaymentNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentNotAllowed(
+            PaymentNotAllowedException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(InvalidPaymentSignatureException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPaymentSignature(
+            InvalidPaymentSignatureException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(response);
+    }
+
+    @ExceptionHandler(OrderPaymentRequiredException.class)
+    public ResponseEntity<ErrorResponse> handleOrderPaymentRequired(
+            OrderPaymentRequiredException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(OrderCancellationNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleOrderCancellationNotAllowed(
+            OrderCancellationNotAllowedException exception
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                exception.getMessage(),
+                Map.of()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
 }
