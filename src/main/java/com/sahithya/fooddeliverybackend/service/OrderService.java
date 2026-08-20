@@ -35,6 +35,9 @@ public class OrderService {
     private final RefundRepository refundRepository;
     private final RefundMapper refundMapper;
     private final RefundService refundService;
+    private final InventoryService  inventoryService;
+    private final InventoryReservationRepository inventoryReservationRepository;
+    private final InventoryRepository inventoryRepository;
 
     public OrderService(
             CartRepository cartRepository,
@@ -46,7 +49,11 @@ public class OrderService {
             PaymentRepository paymentRepository,
             PaymentPolicyService paymentPolicyService,
             RefundRepository refundRepository,
-            RefundMapper refundMapper, RefundService refundService
+            RefundMapper refundMapper,
+            RefundService refundService,
+            InventoryService inventoryService,
+            InventoryReservationRepository inventoryReservationRepository,
+             InventoryRepository inventoryRepository
     ) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
@@ -59,6 +66,9 @@ public class OrderService {
         this.refundRepository = refundRepository;
         this.refundMapper = refundMapper;
         this.refundService = refundService;
+        this.inventoryService = inventoryService;
+        this.inventoryReservationRepository = inventoryReservationRepository;
+        this.inventoryRepository = inventoryRepository;
     }
 
     @Transactional
@@ -125,8 +135,13 @@ public class OrderService {
             order.addOrderItem(orderItem);
         }
 
+
+
         Order savedOrder =
                 orderRepository.save(order);
+        inventoryService.reserveForOrder(
+                order
+        );
 
         cartItemRepository.deleteAll(cartItems);
 
@@ -262,10 +277,19 @@ public class OrderService {
             }
         }
 
+        Instant now = Instant.now();
+
         order.changeStatus(
                 request.getStatus(),
-                Instant.now()
+                now
         );
+
+        if (request.getStatus() == OrderStatus.CONFIRMED) {
+            inventoryService.confirmReservationsForOrder(
+                    orderId,
+                    now
+            );
+        }
 
         return orderMapper.toUpdateStatusResponse(order);
     }
@@ -433,6 +457,11 @@ public class OrderService {
         // 1. Validate + cancel order
         order.cancel(now);
 
+        inventoryService.releaseReservationsForOrder(
+                orderId,
+                now
+        );
+
         // 2. Look for a successful payment
         Optional<Payment> successfulPayment =
                 paymentRepository
@@ -464,4 +493,6 @@ public class OrderService {
 
         refundRepository.save(refund);
     }
+
+
 }

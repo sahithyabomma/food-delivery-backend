@@ -6,6 +6,7 @@ import com.sahithya.fooddeliverybackend.dto.response.PaymentResponse;
 import com.sahithya.fooddeliverybackend.entity.*;
 import com.sahithya.fooddeliverybackend.exception.*;
 import com.sahithya.fooddeliverybackend.mapper.PaymentMapper;
+import com.sahithya.fooddeliverybackend.repository.InventoryRepository;
 import com.sahithya.fooddeliverybackend.repository.OrderRepository;
 import com.sahithya.fooddeliverybackend.repository.PaymentRepository;
 import com.sahithya.fooddeliverybackend.repository.PaymentWebhookEventRepository;
@@ -27,17 +28,23 @@ public class PaymentService {
     private final PaymentMapper paymentMapper;
     private final PaymentSignatureService paymentSignatureService;
     private final PaymentWebhookEventRepository paymentWebhookEventRepository;
+    private final InventoryService inventoryService;
+    private final OrderService orderService;
 
     public PaymentService(
             PaymentRepository paymentRepository,
             OrderRepository orderRepository,
-            PaymentMapper paymentMapper, PaymentSignatureService paymentSignatureService, PaymentWebhookEventRepository paymentWebhookEventRepository
-    ) {
+            PaymentMapper paymentMapper, PaymentSignatureService paymentSignatureService,
+            PaymentWebhookEventRepository paymentWebhookEventRepository,
+            InventoryService inventoryService,
+            OrderService orderService) {
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
         this.paymentMapper = paymentMapper;
         this.paymentSignatureService = paymentSignatureService;
         this.paymentWebhookEventRepository = paymentWebhookEventRepository;
+        this.inventoryService = inventoryService;
+        this.orderService = orderService;
     }
 
     @Transactional
@@ -188,6 +195,10 @@ public class PaymentService {
                         transactionReference,
                         now
                 );
+                inventoryService.confirmReservationsForOrder(
+                        payment.getOrder().getId(),
+                        now
+                );
             }
 
             case FAILED ->
@@ -270,6 +281,10 @@ public class PaymentService {
 
         payment.markSuccess(
                 "COD-" + orderId,
+                now
+        );
+        inventoryService.confirmReservationsForOrder(
+                payment.getOrder().getId(),
                 now
         );
     }
