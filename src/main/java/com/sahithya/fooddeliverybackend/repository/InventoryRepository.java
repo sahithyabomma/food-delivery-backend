@@ -17,6 +17,4 @@ public interface InventoryRepository
     List<Inventory> findByMenuItemIdIn(
             List<UUID> menuItemIds
     );
-
-
 }

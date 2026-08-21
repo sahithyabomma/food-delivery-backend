@@ -77,7 +77,8 @@ public class RestaurantMapper {
     public RestaurantMenuResponse toMenuResponse(
             Restaurant restaurant,
             List<MenuCategory> categories,
-            List<MenuItem> menuItems
+            List<MenuItem> menuItems,
+            Map<UUID, Inventory> inventoryByMenuItem
     ) {
         Map<UUID, List<MenuItem>> itemsByCategory =
                 menuItems.stream()
@@ -95,7 +96,22 @@ public class RestaurantMapper {
                                                     List.of()
                                             )
                                             .stream()
-                                            .map(menuItemMapper::toSummaryResponse)
+                                            .map(menuItem -> {
+                                                Inventory inventory =
+                                                        inventoryByMenuItem.get(
+                                                                menuItem.getId()
+                                                        );
+
+                                                boolean inStock =
+                                                        inventory != null
+                                                                && inventory.getAvailableQuantity() > 0;
+
+                                                return menuItemMapper
+                                                        .toSummaryResponse(
+                                                                menuItem,
+                                                                inStock
+                                                        );
+                                            })
                                             .toList();
 
                             return new MenuCategoryWithItemsResponse(

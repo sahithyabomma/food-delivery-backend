@@ -51,13 +51,18 @@ public class MenuItemMapper {
         );
     }
 
-    public MenuItemSummaryResponse toSummaryResponse(MenuItem item) {
+    public MenuItemSummaryResponse toSummaryResponse(
+            MenuItem item,
+            boolean inStock
+    ) {
         return new MenuItemSummaryResponse(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getPrice(),
-                item.getFoodType()
+                item.getFoodType(),
+                item.isAvailable(),
+                inStock
         );
     }
 }

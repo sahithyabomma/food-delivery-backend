@@ -201,8 +201,13 @@ public class PaymentService {
                 );
             }
 
-            case FAILED ->
-                    payment.markFailed(now);
+            case FAILED -> {
+                payment.markFailed(now);
+                inventoryService.releaseReservationsForOrder(
+                        payment.getOrder().getId(),
+                        now
+                );
+            }
 
             case PENDING ->
                     throw new InvalidPaymentStatusTransitionException(
@@ -281,10 +286,6 @@ public class PaymentService {
 
         payment.markSuccess(
                 "COD-" + orderId,
-                now
-        );
-        inventoryService.confirmReservationsForOrder(
-                payment.getOrder().getId(),
                 now
         );
     }

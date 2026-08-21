@@ -12,19 +12,25 @@ public class MenuItemSummaryResponse {
     private final String description;
     private final BigDecimal price;
     private final FoodType foodType;
+    private final boolean available;
+    private final boolean inStock;
 
     public MenuItemSummaryResponse(
             UUID id,
             String name,
             String description,
             BigDecimal price,
-            FoodType foodType
+            FoodType foodType,
+            boolean available,
+            boolean inStock
     ) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.foodType = foodType;
+        this.available = available;
+        this.inStock = inStock;
     }
 
     public UUID getId() {
@@ -45,5 +51,13 @@ public class MenuItemSummaryResponse {
 
     public FoodType getFoodType() {
         return foodType;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public boolean isInStock() {
+        return inStock;
     }
 }

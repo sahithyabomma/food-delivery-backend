@@ -14,8 +14,8 @@ public interface MenuItemRepository
             String name
     );
 
-    List<MenuItem> findByCategoryRestaurantIdAndAvailableTrueAndDeletedFalseOrderByNameAsc(
-            UUID categoryId
+    List<MenuItem> findByCategoryRestaurantIdAndDeletedFalseOrderByNameAsc(
+            UUID restaurantId
     );
 
 

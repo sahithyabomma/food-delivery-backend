@@ -10,6 +10,10 @@ import com.sahithya.fooddeliverybackend.exception.UnauthorizedRestaurantOperatio
 import com.sahithya.fooddeliverybackend.repository.InventoryRepository;
 import com.sahithya.fooddeliverybackend.repository.InventoryReservationRepository;
 import com.sahithya.fooddeliverybackend.repository.MenuItemRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +26,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
+
+    private static final long RESERVATION_TTL_SECONDS = 10 * 60;
+    private static final int EXPIRATION_BATCH_SIZE = 100;
 
     private final InventoryRepository inventoryRepository;
     private final MenuItemRepository menuItemRepository;
@@ -156,6 +163,9 @@ public class InventoryService {
                         );
 
         Instant now = Instant.now();
+        Instant expiresAt = now.plusSeconds(
+                RESERVATION_TTL_SECONDS
+        );
 
         List<InventoryReservation> reservations =
                 new ArrayList<>();
@@ -187,7 +197,8 @@ public class InventoryService {
                             orderItem.getQuantity(),
                             InventoryReservationStatus.RESERVED,
                             now,
-                            now
+                            now,
+                            expiresAt
                     );
 
             reservations.add(reservation);
@@ -212,14 +223,15 @@ public class InventoryService {
 
         for (InventoryReservation reservation : reservations) {
 
+            UUID menuItemId =
+                    reservation.getMenuItem().getId();
+
             Inventory inventory =
                     inventoryRepository
-                            .findByMenuItemId(
-                                    reservation.getMenuItem().getId()
-                            )
+                            .findByMenuItemId(menuItemId)
                             .orElseThrow(
                                     () -> new InventoryNotFoundException(
-                                            reservation.getMenuItem().getId()
+                                            menuItemId
                                     )
                             );
 
@@ -246,14 +258,57 @@ public class InventoryService {
 
         for (InventoryReservation reservation : reservations) {
 
+            UUID menuItemId =
+                    reservation.getMenuItem().getId();
+
             Inventory inventory =
                     inventoryRepository
-                            .findByMenuItemId(
-                                    reservation.getMenuItem().getId()
-                            )
+                            .findByMenuItemId(menuItemId)
                             .orElseThrow(
                                     () -> new InventoryNotFoundException(
-                                            reservation.getMenuItem().getId()
+                                            menuItemId
+                                    )
+                            );
+
+            inventory.release(
+                    reservation.getQuantity(),
+                    now
+            );
+
+            reservation.release(now);
+        }
+    }
+
+    @Transactional
+    public void releaseExpiredReservations() {
+
+        Instant now = Instant.now();
+
+        Pageable firstBatch = PageRequest.of(
+                0,
+                EXPIRATION_BATCH_SIZE,
+                Sort.by(Sort.Direction.ASC, "expiresAt")
+        );
+
+        Page<InventoryReservation> page =
+                inventoryReservationRepository
+                        .findByStatusAndExpiresAtBefore(
+                                InventoryReservationStatus.RESERVED,
+                                now,
+                                firstBatch
+                        );
+
+        for (InventoryReservation reservation : page.getContent()) {
+
+            UUID menuItemId =
+                    reservation.getMenuItem().getId();
+
+            Inventory inventory =
+                    inventoryRepository
+                            .findByMenuItemId(menuItemId)
+                            .orElseThrow(
+                                    () -> new InventoryNotFoundException(
+                                            menuItemId
                                     )
                             );
 

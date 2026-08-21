@@ -17,6 +17,12 @@ import java.util.UUID;
                                 "menu_item_id"
                         }
                 )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_inventory_reservation_expiry",
+                        columnList = "status, expires_at"
+                )
         }
 )
 public class InventoryReservation {
@@ -51,6 +57,12 @@ public class InventoryReservation {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
+
+    @Version
+    private Long version;
+
     protected InventoryReservation() {
     }
 
@@ -61,7 +73,8 @@ public class InventoryReservation {
             int quantity,
             InventoryReservationStatus status,
             Instant createdAt,
-            Instant updatedAt
+            Instant updatedAt,
+            Instant expiresAt
     ) {
         this.id = id;
         this.order = order;
@@ -70,6 +83,7 @@ public class InventoryReservation {
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.expiresAt = expiresAt;
     }
 
     public void confirm(Instant now) {
@@ -132,5 +146,13 @@ public class InventoryReservation {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }
